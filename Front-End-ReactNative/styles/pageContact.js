@@ -166,7 +166,66 @@ const pageContact = StyleSheet.create({
         position: 'absolute',
         bottom: height * -0.37,
         right: width * -0.45,
+    },
+
+    //-----------------Bouton Revenir apres recherche
+    btnRevenirApresRecherche: {
+        backgroundColor: '#fff',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'red',
+        marginRight: 60,
+        marginTop: -4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+        elevation: 3,
+    },
+
+    texteRetourApresRecherche: {
+        color: 'red',
+        fontWeight: 'bold',
+    },
+
+    //---------------Texte au chargement
+    texteChargement: {
+        marginLeft: 20
+    },
+
+    //-------------texte pour aucun contact trouver
+    texteAucunContactTrouver: {
+        marginLeft: 20,
+        fontStyle: 'italic',
+        color: '#999'
+    },
+
+    //---------------message pour la suppression
+    viewMessageSuppression: {
+        position: 'absolute',
+        bottom: 150,
+        left: 20,
+        right: 20,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        padding: 10,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
+        elevation: 5, // pour Android
+    },
+
+    texteMesaageSuppression: {
+        color: 'green',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        fontSize: 16
     }
+
 
 });
 

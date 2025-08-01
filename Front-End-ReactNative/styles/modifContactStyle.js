@@ -84,6 +84,11 @@ const modifContactSyle = StyleSheet.create({
 
     iconRemplirTexte: {
         marginTop: height * 0.009,
+    },
+
+    //Pour les messages d'erreurs
+    messageErreur: {
+        color: 'red', fontSize: 12, marginTop: -25
     }
 });
 

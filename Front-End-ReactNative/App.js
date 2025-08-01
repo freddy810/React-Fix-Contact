@@ -1,151 +1,174 @@
 import { StatusBar, ScrollView, Text, TouchableOpacity, View, useState, Feather, FontAwesome, AntDesign, Ionicons, AjoutContact, VoirContact, pageContact, } from './importation/importationApp';
-import useContacts from './hook/useContacts';
+import React, { useEffect } from 'react';
+import useContacts from './hook/useContacts'; // Hook personnalisé pour gérer les contacts
+import ModalRecherche from './components/modalRecherche'; // Composant modal pour la recherche
 
 export default function App() {
-  //Pour la suppression
+  // Message d'accueil (affiché après modification/suppression)
   const [messageAccueil, setMessageAccueil] = useState('');
 
-  //pour le hook (api)
-  const { contacts, loading, chargerContacts } = useContacts(); // <-- ici on récupère les données du hook
+  // Hook pour récupérer les contacts (depuis l'API Laravel)
+  const { contacts, loading, chargerContacts } = useContacts();
 
-  //Pour le scrollView
+  // Gère l'affichage du titre "Contacts" selon la position du scroll
   const [affichageScroll, setAfficheScroll] = useState(false);
   const leScroll = (event) => {
     const positionScroll = event.nativeEvent.contentOffset.y;
-    if (positionScroll >= 5) {
-      setAfficheScroll(true);
-    } else {
-      setAfficheScroll(false);
-    }
+    setAfficheScroll(positionScroll >= 5);
   };
 
-  //Pour la navigation
+  // Gère le terme recherché dans la recherche
+  const [termeRecherche, setTermeRecherche] = useState('');
+  const contactsFiltres = contacts; // Liste à afficher (peut être filtrée)
+
+  // Gère l'affichage du modal de recherche
+  const [modalVisible, setModalVisible] = useState(false);
+
+  // Gère la navigation entre les pages : accueil / ajout / voir
   const [page, setPage] = useState('accueil');
+
+  // Si l'utilisateur est sur la page d'ajout
   if (page === 'ajout') {
     return <AjoutContact retour={() => {
-      chargerContacts(); // ← recharge les contacts après ajout
+      chargerContacts(); // Recharge les contacts après ajout
       setPage('accueil');
     }} setPage={setPage} />;
   }
 
-  // Si page est un objet avec nom 'voir'
+  // Si l'utilisateur est sur la page de visualisation d'un contact
   if (typeof page === 'object' && page.nom === 'voir') {
-    return (<VoirContact contact={page.data} message={page.message}
-      retour={(contact, msg) => {
-        setMessageAccueil(msg);//affiche le message à l'accueil
-        chargerContacts(); // ← recharge les contacts après modification ou suppression
-        setPage('accueil');
-        setTimeout(() => setMessageAccueil(''), 3000);
-      }}
-    />
+    return (
+      <VoirContact
+        contact={page.data} // Donnée du contact sélectionné
+        message={page.message} // Message à afficher à l'accueil après modification
+        retour={(contact, msg) => {
+          setMessageAccueil(msg); // Liaison avec VoirContact.js pour message suppression/modification
+          chargerContacts(); // Recharge les contacts après modification
+          setPage('accueil'); // Retour à l'accueil
+          setTimeout(() => setMessageAccueil(''), 3000); // Efface le message après 3s
+        }}
+      />
     );
   }
 
   return (
     <View style={pageContact.container}>
 
-      {/*----------Recherche, Parametre------------------------------------------------------------------------------------------------------ */}
+      {/* Section Recherche et Paramètre */}
       <View style={pageContact.rechercheParametre}>
-        {affichageScroll == true && <Text style={pageContact.ecritureContactOnScroll}>Contacts</Text>}
-        <TouchableOpacity ><Feather style={pageContact.recherche} name="search" color="rgb(44, 118, 234)" size={24} /></TouchableOpacity>
-        <TouchableOpacity><Feather style={pageContact.parametre} name="settings" color="rgb(44, 118, 234)" size={24} /></TouchableOpacity>
+        {affichageScroll && <Text style={pageContact.ecritureContactOnScroll}>Contacts</Text>}
+
+        {/* Bouton Retour après recherche */}
+        {termeRecherche !== '' && (
+          <TouchableOpacity
+            onPress={() => { setTermeRecherche(''); chargerContacts(); }}
+            style={pageContact.btnRevenirApresRecherche}
+          >
+            <Text style={pageContact.texteRetourApresRecherche}>
+              <Ionicons name="arrow-back" size={10} color="red" style={{ marginRight: 5 }} /> Retour
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Bouton de recherche */}
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <Feather style={pageContact.recherche} name="search" color="rgb(44, 118, 234)" size={24} />
+        </TouchableOpacity>
+
+        {/* Modal de recherche */}
+        <ModalRecherche
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          onValider={(valeurRecherchee) => {
+            setTermeRecherche(valeurRecherchee); // Définit le filtre
+            chargerContacts(valeurRecherchee); // Charge les contacts filtrés
+            setModalVisible(false); // Ferme le modal
+          }}
+        />
+
+        {/* Bouton de paramètre (non fonctionnel pour l'instant) */}
+        <TouchableOpacity>
+          <Feather style={pageContact.parametre} name="settings" color="rgb(44, 118, 234)" size={24} />
+        </TouchableOpacity>
       </View>
 
-      {/*----------ScrollView------------------------------------------------------------------------------------------------------ */}
+      {/* Liste des contacts */}
       <ScrollView style={pageContact.leScroll} onScroll={leScroll}>
-        {/*----------Ecriture contact-----------*/}
-        {affichageScroll == false &&
+
+        {/* Titre "Contacts" si pas de scroll */}
+        {!affichageScroll && (
           <View style={pageContact.contact}>
             <Text style={pageContact.ecritureContact}>Contacts</Text>
           </View>
-        }
+        )}
 
-        {/*----------Mon profil-----------*/}
+        {/* Section Mon profil */}
         <View style={pageContact.profil}>
-          <TouchableOpacity><FontAwesome style={pageContact.iconeProfil} name="user" color="rgb(63, 92, 248)" size={24} /></TouchableOpacity>
+          <TouchableOpacity>
+            <FontAwesome style={pageContact.iconeProfil} name="user" color="rgb(63, 92, 248)" size={24} />
+          </TouchableOpacity>
           <Text style={pageContact.texteProfil}>Mon profil</Text>
         </View>
 
-        {/*----------les Contact-----------*/}
+        {/* Bloc d'affichage des contacts */}
         <View style={pageContact.lesContact}>
           <Text style={pageContact.leA}>Les Contacts</Text>
-
           <View style={pageContact.blockContact}>
 
-            {/* 
-              Affichage conditionnel :
-              - Si les contacts sont en train de charger, on affiche un message de chargement
-              - Sinon, on affiche la liste des contacts récupérés depuis Laravel
-            */}
+            {/* Affichage selon état du chargement */}
             {loading ? (
-              <Text style={{ marginLeft: 20 }}>Chargement...</Text> // Message pendant le chargement
-            ) : (
-              // Pour chaque contact, on crée un bouton cliquable affichant la première lettre du nom et le nom complet
-              contacts.map((contact, index) => (
-                <TouchableOpacity
-                  key={index} // Clé unique pour chaque élément de la liste
-                  style={pageContact.btnContact}
-                  onPress={() => setPage({ nom: 'voir', data: contact })} // Change de page pour voir les détails (tu peux améliorer ça plus tard)
-                >
-                  {/* Première lettre du nom en majuscule */}
-                  <Text style={pageContact.profilContact}>
-                    {contact.nom.charAt(0).toUpperCase()}
-                  </Text>
-                  {/* Nom complet du contact */}
-                  <Text style={pageContact.texteContact}>{contact.nom}</Text>
-                </TouchableOpacity>
-              ))
-            )}
+              <Text style={pageContact.texteChargement}>Chargement...</Text>
+            ) :
+              contactsFiltres.length === 0 ? (
+                <Text style={pageContact.texteAucunContactTrouver}>Aucun contact trouvé</Text>
+              ) : (
+                contactsFiltres.map((contact, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={pageContact.btnContact}
+                    onPress={() => setPage({ nom: 'voir', data: contact })}
+                  >
+                    <Text style={pageContact.profilContact}>
+                      {contact.nom.charAt(0).toUpperCase()}
+                    </Text>
+                    <Text style={pageContact.texteContact}>{contact.nom}</Text>
+                  </TouchableOpacity>
+                ))
+              )}
 
           </View>
-
         </View>
       </ScrollView>
 
-      {/*----------Footer------------------------------------------------------------------------------------------------------ */}
+      {/* Footer avec navigation (statique) */}
       <View style={pageContact.footer}>
         <View style={pageContact.recent}>
-          <TouchableOpacity><AntDesign style={pageContact.iconRecent} name="clockcircleo" color="#000" size={20} /></TouchableOpacity>
+          <TouchableOpacity>
+            <AntDesign style={pageContact.iconRecent} name="clockcircleo" color="#000" size={20} />
+          </TouchableOpacity>
           <Text style={pageContact.texteRecent}>Récents</Text>
         </View>
 
         <View style={pageContact.contactFooter}>
-          <TouchableOpacity><FontAwesome name="user" color="rgb(63, 92, 248)" size={24} /></TouchableOpacity>
+          <TouchableOpacity>
+            <FontAwesome name="user" color="rgb(63, 92, 248)" size={24} />
+          </TouchableOpacity>
           <Text style={pageContact.texteContactFooter}>Contacts</Text>
         </View>
       </View>
 
-      {/*---------Bouton ajout----------------------------------------------------------------------------------------------------- */}
-      <TouchableOpacity onPress={() => setPage('ajout')}><Ionicons style={pageContact.iconAjout} name="add" color="#000" size={24} /></TouchableOpacity>
+      {/* Bouton pour aller à la page d'ajout */}
+      <TouchableOpacity onPress={() => setPage('ajout')}>
+        <Ionicons style={pageContact.iconAjout} name="add" color="#000" size={24} />
+      </TouchableOpacity>
 
-      {//Pour la suppression aussi
-        messageAccueil !== '' && (
-          <View style={{
-            position: 'absolute',
-            bottom: 150,
-            left: 20,
-            right: 20,
-            backgroundColor: 'white',
-            borderRadius: 10,
-            padding: 10,
-            alignItems: 'center',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.3,
-            shadowRadius: 3,
-            elevation: 5, // pour Android
-          }}>
-            <Text style={{
-              color: 'green',
-              fontWeight: 'bold',
-              textAlign: 'center',
-              fontSize: 16
-            }}>
-              {messageAccueil}
-            </Text>
-          </View>
-        )
-      }
+      {/* Message après suppression/modification */}
+      {messageAccueil !== '' && (
+        <View style={pageContact.viewMessageSuppression}>
+          <Text style={pageContact.texteMesaageSuppression}>{messageAccueil}</Text>
+        </View>
+      )}
+
       <StatusBar style="auto" />
     </View>
   );

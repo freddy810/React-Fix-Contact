@@ -92,6 +92,11 @@ const ajoutContactSyle = StyleSheet.create({
         fontSize: 13,
         marginLeft: 0,
         marginBottom: 0,
+    },
+
+    //Pour les erreurs
+    messageErreur: {
+        color: 'red', fontSize: 12, marginTop: -25
     }
 
 });

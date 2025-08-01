@@ -8,9 +8,23 @@ use Illuminate\Http\Request;
 
 class ContactApiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Contact::latest()->get(), 200);
+        $query = Contact::query();
+
+        if ($request->filled('recherche')) {
+            $recherche = $request->recherche;
+            $query->where(function ($q) use ($recherche) {
+                $q->where('nom', 'like', '%' . $recherche . '%')
+                    ->orWhere('numPhone', 'like', '%' . $recherche . '%')
+                    ->orWhere('adresseEmail', 'like', '%' . $recherche . '%')
+                    ->orWhere('enregistrementSIM', 'like', '%' . $recherche . '%');
+            });
+        }
+
+        $contacts = $query->latest()->get();
+
+        return response()->json($contacts, 200);
     }
 
     public function store(Request $request)
@@ -18,18 +32,18 @@ class ContactApiController extends Controller
         $validated = $request->validate(
             [
                 'nom' => 'required|max:13',
-                'numPhone' => ['required', 'regex:/^[0-9 ]+$/', 'min:3', 'max:10'],
+                'numPhone' => 'required|regex:/^[0-9#\*]+$/|string|min:3|max:10',
                 'adresseEmail' => 'nullable',
                 'enregistrementSIM' => 'required',
             ],
             [
                 'nom.required' => 'Le nom est obligatoire.',
-                'nom.max' => 'Le nom ne doit pas dépasser 13 caractères.',
-                'numPhone.required' => 'Le numéro de téléphone est obligatoire.',
-                'numPhone.regex' => 'Le numéro de téléphone doit contenir uniquement des chiffres et des espaces.',
-                'numPhone.min' => 'Le numéro de téléphone doit contenir au moins 3 caractères.',
-                'numPhone.max' => 'Le numéro de téléphone ne doit pas dépasser 10 caractères.',
-                'enregistrementSIM.required' => 'Le champ SIM est obligatoire.',
+                'nom.max' => '13 caractères max.',
+                'numPhone.required' => 'Le n° est obligatoire.',
+                'numPhone.regex' => 'chiffres, * et # seulement.',
+                'numPhone.min' => '3 chiffres min',
+                'numPhone.max' => '10 chiffres max',
+                'enregistrementSIM.required' => 'Le SIM est obligatoire.',
             ]
         );
 
@@ -47,18 +61,18 @@ class ContactApiController extends Controller
         $validated = $request->validate(
             [
                 'nom' => 'required|max:13',
-                'numPhone' => ['required', 'regex:/^[0-9 ]+$/', 'min:3', 'max:10'],
+                'numPhone' => 'required|regex:/^[0-9#\*]+$/|string|min:3|max:10',
                 'adresseEmail' => 'nullable',
                 'enregistrementSIM' => 'required',
             ],
             [
                 'nom.required' => 'Le nom est obligatoire.',
-                'nom.max' => 'Le nom ne doit pas dépasser 13 caractères.',
-                'numPhone.required' => 'Le numéro de téléphone est obligatoire.',
-                'numPhone.regex' => 'Le numéro de téléphone doit contenir uniquement des chiffres et des espaces.',
-                'numPhone.min' => 'Le numéro de téléphone doit contenir au moins 3 caractères.',
-                'numPhone.max' => 'Le numéro de téléphone ne doit pas dépasser 10 caractères.',
-                'enregistrementSIM.required' => 'Le champ SIM est obligatoire.',
+                'nom.max' => '13 caractères max.',
+                'numPhone.required' => 'Le n° est obligatoire.',
+                'numPhone.regex' => 'chiffres, * et # seulement.',
+                'numPhone.min' => '3 chiffres min',
+                'numPhone.max' => '10 chiffres max',
+                'enregistrementSIM.required' => 'Le SIM est obligatoire.',
             ]
         );
 
