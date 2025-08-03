@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal } from 'react-native';
 import { useState } from 'react';
 
 import Feather from 'react-native-vector-icons/Feather';
@@ -11,4 +11,4 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import pageRecent from '../styles/pageRecent';
 
-export { StatusBar, MaterialCommunityIcons, ScrollView, StyleSheet, Text, TouchableOpacity, View, useState, Feather, FontAwesome, AntDesign, Ionicons, pageRecent, };
+export { StatusBar, Modal, MaterialCommunityIcons, ScrollView, StyleSheet, Text, TouchableOpacity, View, useState, Feather, FontAwesome, AntDesign, Ionicons, pageRecent, };

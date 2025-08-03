@@ -4,7 +4,16 @@ import useContacts from '../hook/useContacts'; // Hook personnalisé pour gérer
 import ModalRecherche from '../components/modalRecherche'; // Composant modal pour la recherche
 import { useNavigation } from '@react-navigation/native';
 
+import useRecentAjoutContact from '../hook/useRecentAjoutContact'; //Hook pour l'ajout dans la table contacts-recents
+
 export default function Accueil() {
+    //Pour le contacts-recents
+    const [nom, setNom] = useState('');
+    const [enregistrementSIM, setEnregistrementSIM] = useState('');
+    const [momentVoir, setMomentVoir] = useState('');
+    const { ajouterRecentContact } = useRecentAjoutContact();
+
+
     // Hook pour naviguer
     const navigation = useNavigation();
 
@@ -130,7 +139,23 @@ export default function Accueil() {
                                     <TouchableOpacity
                                         key={index}
                                         style={pageContact.btnContact}
-                                        onPress={() => setPage({ nom: 'voir', data: contact })}
+                                        onPress={async () => {
+                                            const maintenant = new Date();
+                                            const heures = maintenant.getHours().toString().padStart(2, '0');
+                                            const minutes = maintenant.getMinutes().toString().padStart(2, '0');
+                                            const moment = `${heures}:${minutes}`;
+
+                                            await ajouterRecentContact({
+                                                nom: contact.nom,
+                                                enregistrementSIM: contact.enregistrementSIM,
+                                                momentVoir: moment,
+                                                setNom,
+                                                setEnregistrementSIM,
+                                                setMomentVoir,
+                                            });
+
+                                            setPage({ nom: 'voir', data: contact });
+                                        }}
                                     >
                                         <Text style={pageContact.profilContact}>
                                             {contact.nom.charAt(0).toUpperCase()}
