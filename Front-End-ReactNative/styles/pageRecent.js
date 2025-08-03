@@ -4,7 +4,7 @@ const { width, height } = Dimensions.get('window');
 
 import { StyleSheet } from "react-native";
 
-const pageContact = StyleSheet.create({
+const pageRecent = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
@@ -98,12 +98,29 @@ const pageContact = StyleSheet.create({
 
     leA: {
         fontSize: 12,
+        marginTop: -70,
         marginBottom: 20,
     },
 
     blockContact: {
-        flexDirection: 'column',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         marginBottom: 20,
+        marginRight: 40,
+    },
+
+    nomTexte: {
+        fontSize: 22,
+    },
+
+    simTexte: {
+        fontSize: 12,
+        color: 'rgb(190, 187, 181)',
+    },
+
+    heureTexte: {
+        color: 'rgb(236, 70, 70)',
     },
 
     btnContact: {
@@ -150,11 +167,11 @@ const pageContact = StyleSheet.create({
         fontSize: 12,
         marginBottom: height * -0.01,
         marginLeft: -15,
+        color: 'rgb(63, 92, 248)'
     },
 
     texteContactFooter: {
         fontSize: 12,
-        color: "rgb(63, 92, 248)",
         marginBottom: height * -0.003,
         marginLeft: -20,
     },
@@ -231,4 +248,4 @@ const pageContact = StyleSheet.create({
 
 });
 
-export default pageContact;
+export default pageRecent;
